@@ -30,17 +30,25 @@ public class SmokeInfoComponent {
         if (msg != null && msg.startsWith("smoke")) {
             String[] smokeMsgSplit = msg.split(" ");
             String target = smokeMsgSplit[1];
-            String smokeTime = smokeMsgSplit[2];
+            String smokeTime = smokeMsgSplit[smokeMsgSplit.length - 1];
             if (StringUtils.isNumeric(smokeTime)) {
                 int smokeTimeInt = new BigDecimal(smokeTime).intValue();
                 if (smokeTimeInt > 0) {
                     GroupMemberDTO targetMember = null;
                     GroupMemberDTO attacterMember = null;
                     if (target.startsWith("[CQ:at,qq=")) {
-                        targetMember = groupComponent.getGroupMemberByNickName(data.getGroup(), target.substring(10, target.length() - 2));
-                    } else if (target.startsWith("@")) {
-                        targetMember = groupComponent.getGroupMemberByNickName(data.getGroup(), target.substring(1));
-                    } else if (StringUtils.isNumeric(target)) {
+                        targetMember = groupComponent.getGroupMemberByQQ(data.getGroup(), target.substring(10, target.length() - 1));
+//                    } else if (target.startsWith("@")) {
+//                        target = "";
+//                        for (int i = 1; i < smokeMsgSplit.length - 1; i++) {
+//                            if (smokeMsgSplit[i].isEmpty()) {
+//                                continue;
+//                            }
+//                            target += smokeMsgSplit[i] + " ";
+//                        }
+//                        target = target.substring(0, target.length() - 1);
+//                        targetMember = groupComponent.getGroupMemberByNickName(data.getGroup(), target.substring(1));
+                    } else if (StringUtils.isNumeric(target) && target.indexOf(".") == -1) {
                         targetMember = groupComponent.getGroupMemberByQQ(data.getGroup(), target);
                     } else {
                         return smokeInfoDTO;

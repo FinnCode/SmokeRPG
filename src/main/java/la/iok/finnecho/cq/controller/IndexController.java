@@ -1,6 +1,5 @@
 package la.iok.finnecho.cq.controller;
 
-import la.iok.finnecho.cq.util.CQSDK;
 import java.io.DataInputStream;
 import java.net.URLDecoder;
 

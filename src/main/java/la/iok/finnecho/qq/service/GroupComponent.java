@@ -25,7 +25,12 @@ public class GroupComponent {
      */
     private GroupMemberDTO getGroupMemberLocalByName(String group, String name) {
         List<GroupMemberDTO> groupMemberList = memberListMap.get(group);
-        GroupMemberDTO result = groupMemberList.stream().filter(groupMemberDTO -> groupMemberDTO.getName().equals(name)).collect(Collectors.toList()).get(0);
+
+        List<GroupMemberDTO> collect = groupMemberList.stream().filter(groupMemberDTO -> groupMemberDTO.getName().equals(name)).collect(Collectors.toList());
+        if (collect.isEmpty()) {
+            return null;
+        }
+        GroupMemberDTO result = collect.get(0);
         return result;
     }
 
@@ -38,7 +43,11 @@ public class GroupComponent {
      */
     private GroupMemberDTO getGroupMemberLocalByQQ(String group, String qq) {
         List<GroupMemberDTO> groupMemberList = memberListMap.get(group);
-        GroupMemberDTO result = groupMemberList.stream().filter(groupMemberDTO -> groupMemberDTO.getQq().equals(qq)).collect(Collectors.toList()).get(0);
+        List<GroupMemberDTO> collect = groupMemberList.stream().filter(groupMemberDTO -> groupMemberDTO.getQq().equals(qq)).collect(Collectors.toList());
+        if (collect.isEmpty()) {
+            return null;
+        }
+        GroupMemberDTO result = collect.get(0);
         return result;
     }
 
@@ -54,10 +63,11 @@ public class GroupComponent {
         GroupMemberDTO result = getGroupMemberLocalByName(group, name);
         if (result == null) {
             clear(group);
+            memberListMap.put(group, CQSDK.getGroupMemberList2(group));
         } else {
             return result;
         }
-        return getGroupMemberByNickName(group, name);
+        return getGroupMemberLocalByName(group, name);
     }
 
     public GroupMemberDTO getGroupMemberByQQ(String group, String qq) {
@@ -67,9 +77,10 @@ public class GroupComponent {
         GroupMemberDTO result = getGroupMemberLocalByQQ(group, qq);
         if (result == null) {
             clear(group);
+            memberListMap.put(group, CQSDK.getGroupMemberList2(group));
         } else {
             return result;
         }
-        return getGroupMemberByQQ(group, qq);
+        return getGroupMemberLocalByQQ(group, qq);
     }
 }

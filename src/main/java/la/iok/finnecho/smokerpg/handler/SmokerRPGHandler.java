@@ -118,22 +118,30 @@ public class SmokerRPGHandler implements QQMessageHandler {
     @Override
     public void onGroupMessage(RequestDataDTO data) {
         SmokeInfoDTO smokeInfoInformation = smokeInfoComponent.getSmokeInfoInformation(data);
-
         if (smokeInfoInformation.isSmoke()) {
             GroupMemberDTO attacker = smokeInfoInformation.getAttacker();
             GroupMemberDTO target = smokeInfoInformation.getTarget();
             Map<String, String> mes = new HashMap<>();
+            if (attacker == null || target == null) {
+                mes.put("name", data.getQQ());
+                CQSDK.sendGroupMsg(data.getGroup(), messageRenderer.render(MessageRenderer.ATTACKER_NOT_FOUND, mes));
+            }
             mes.put("attacker", attacker.getName());
             mes.put("target", target.getName());
             if (target.isCreater()) {
                 if (Math.random() > 0.1) {
                     CQSDK.sendGroupMsg(data.getGroup(), messageRenderer.render(MessageRenderer.SMOKE_CREATER, mes));
+                    return;
                 } else {
                     CQSDK.sendGroupMsg(data.getGroup(), messageRenderer.render(MessageRenderer.SMOKE_CREATER_BACK_BITE, mes));
+                    CQSDK.setGroupBan(data.getGroup(), attacker.getQq(), 1);
+                    return;
                 }
             }
             if (target.isManager()) {
                 CQSDK.sendGroupMsg(data.getGroup(), messageRenderer.render(MessageRenderer.SMOKE_MANAGER, mes));
+                CQSDK.setGroupBan(data.getGroup(), attacker.getQq(), 1);
+                return;
             }
 
             Integer smokeTime = smokeInfoInformation.getSmokeTime();
@@ -151,11 +159,13 @@ public class SmokerRPGHandler implements QQMessageHandler {
                 //成功
                 CQSDK.sendGroupMsg(data.getGroup(), messageRenderer.render(MessageRenderer.SMOKE, mes));
                 CQSDK.setGroupBan(data.getGroup(), target.getQq(), smokeTime);
+                return;
             } else {
                 //反噬
                 CQSDK.sendGroupMsg(data.getGroup(), messageRenderer.render(MessageRenderer.SMOKE_BACK_BIT, mes));
                 smokeTime = smokeTime <= 1 ? 1 : Math.round(smokeTime / 2);
                 CQSDK.setGroupBan(data.getGroup(), attacker.getQq(), smokeTime);
+                return;
             }
         }
     }
